@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任務管理系統 - UI Mockup</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        
+        /* 主要佈局 */
+        .app-layout { display: flex; height: 100vh; }
+        
+        /* 側邊欄 */
+        .sidebar { width: 240px; background: #1976d2; color: white; padding: 20px; }
+        .sidebar h2 { margin-bottom: 30px; font-size: 20px; }
+        .nav-item { padding: 12px 16px; margin: 4px 0; border-radius: 6px; cursor: pointer; }
+        .nav-item:hover { background: rgba(255,255,255,0.1); }
+        .nav-item.active { background: rgba(255,255,255,0.2); }
+        
+        /* 主內容區 */
+        .main-content { flex: 1; display: flex; flex-direction: column; }
+        
+        /* 頂部工具列 */
+        .toolbar { height: 64px; background: white; border-bottom: 1px solid #e0e0e0; 
+                   display: flex; align-items: center; padding: 0 24px; justify-content: space-between; }
+        .toolbar h1 { font-size: 24px; color: #212121; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: #42a5f5; 
+                       display: flex; align-items: center; justify-content: center; color: white; }
+        
+        /* 看板區域 */
+        .kanban-board { flex: 1; padding: 24px; display: flex; gap: 24px; overflow-x: auto; }
+        
+        /* 看板列 */
+        .kanban-column { min-width: 280px; background: white; border-radius: 8px; 
+                         box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .column-header { padding: 16px; border-bottom: 1px solid #e0e0e0; 
+                         background: #fafafa; border-radius: 8px 8px 0 0; }
+        .column-title { font-weight: 600; color: #212121; }
+        .task-count { color: #666; font-size: 12px; }
+        
+        /* 任務卡片 */
+        .task-list { padding: 16px; min-height: 200px; }
+        .task-card { background: white; border: 1px solid #e0e0e0; border-radius: 6px; 
+                     padding: 12px; margin-bottom: 12px; cursor: pointer; }
+        .task-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+        .task-title { font-weight: 500; margin-bottom: 8px; color: #212121; }
+        .task-meta { display: flex; justify-content: space-between; align-items: center; }
+        .task-priority { padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+        .priority-high { background: #ffebee; color: #d32f2f; }
+        .priority-medium { background: #fff3e0; color: #ed6c02; }
+        .priority-low { background: #e8f5e8; color: #2e7d32; }
+        .task-assignee { width: 24px; height: 24px; border-radius: 50%; background: #42a5f5; 
+                         font-size: 10px; display: flex; align-items: center; justify-content: center; color: white; }
+        
+        /* 按鈕 */
+        .btn-primary { background: #1976d2; color: white; border: none; padding: 8px 16px; 
+                       border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .btn-primary:hover { background: #1565c0; }
+        
+        /* 甘特圖區域 */
+        .gantt-view { display: none; padding: 24px; }
+        .gantt-timeline { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+                          padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- 側邊導航 -->
+        <nav class="sidebar">
+            <h2>TaskFlow Pro</h2>
+            <div class="nav-item active">📊 儀表板</div>
+            <div class="nav-item">📋 專案</div>
+            <div class="nav-item">📌 看板</div>
+            <div class="nav-item">📈 甘特圖</div>
+            <div class="nav-item">👥 團隊</div>
+            <div class="nav-item">📊 報表</div>
+            <div class="nav-item">⚙️ 設定</div>
+        </nav>
+        
+        <!-- 主內容區 -->
+        <main class="main-content">
+            <!-- 頂部工具列 -->
+            <header class="toolbar">
+                <h1>專案看板</h1>
+                <div style="display: flex; gap: 16px; align-items: center;">
+                    <button class="btn-primary">+ 新增任務</button>
+                    <div class="user-avatar">U</div>
+                </div>
+            </header>
+            
+            <!-- 看板視圖 -->
+            <div class="kanban-board">
+                <!-- 待辦列 -->
+                <div class="kanban-column">
+                    <div class="column-header">
+                        <div class="column-title">待辦事項</div>
+                        <div class="task-count">3 個任務</div>
+                    </div>
+                    <div class="task-list">
+                        <div class="task-card">
+                            <div class="task-title">設計用戶登入介面</div>
+                            <div class="task-meta">
+                                <span class="task-priority priority-high">高優先</span>
+                                <div class="task-assignee">A</div>
+                            </div>
+                        </div>
+                        <div class="task-card">
+                            <div class="task-title">建立資料庫Schema</div>
+                            <div class="task-meta">
+                                <span class="task-priority priority-medium">中優先</span>
+                                <div class="task-assignee">B</div>
+                            </div>
+                        </div>
+                        <div class="task-card">
+                            <div class="task-title">撰寫API文檔</div>
+                            <div class="task-meta">
+                                <span class="task-priority priority-low">低優先</span>
+                                <div class="task-assignee">C</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 進行中列 -->
+                <div class="kanban-column">
+                    <div class="column-header">
+                        <div class="column-title">進行中</div>
+                        <div class="task-count">2 個任務</div>
+                    </div>
+                    <div class="task-list">
+                        <div class="task-card">
+                            <div class="task-title">開發用戶認證功能</div>
+                            <div class="task-meta">
+                                <span class="task-priority priority-high">高優先</span>
+                                <div class="task-assignee">D</div>
+                            </div>
+                        </div>
+                        <div class="task-card">
+                            <div class="task-title">實作拖拉排序</div>
+                            <div class="task-meta">
+                                <span class="task-priority priority-medium">中優先</span>
+                                <div class="task-assignee">E</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 已完成列 -->
+                <div class="kanban-column">
+                    <div class="column-header">
+                        <div class="column-title">已完成</div>
+                        <div class="task-count">1 個任務</div>
+                    </div>
+                    <div class="task-list">
+                        <div class="task-card">
+                            <div class="task-title">專案初始設定</div>
+                            <div class="task-meta">
+                                <span class="task-priority priority-low">低優先</span>
+                                <div class="task-assignee">F</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        // 簡單的導航切換
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelector('.nav-item.active').classList.remove('active');
+                item.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
