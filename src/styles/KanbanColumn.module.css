@@ -1,0 +1,51 @@
+.kanbanColumn {
+  min-width: 280px;
+  background: white;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 180px);
+}
+
+.columnHeader {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--grey-200);
+  background: var(--grey-50);
+  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+}
+
+.columnTitle {
+  font-weight: 600;
+  color: var(--grey-900);
+  margin-bottom: var(--spacing-xs);
+}
+
+.taskCount {
+  color: var(--grey-600);
+  font-size: var(--font-size-xs);
+}
+
+.taskList {
+  padding: var(--spacing-md);
+  min-height: 200px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.addTaskButton {
+  margin: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  border: 2px dashed var(--grey-300);
+  background: transparent;
+  border-radius: var(--border-radius-md);
+  color: var(--grey-600);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.addTaskButton:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--grey-50);
+}

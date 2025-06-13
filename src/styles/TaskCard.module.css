@@ -1,0 +1,81 @@
+.taskCard {
+  background: white;
+  border: 1px solid var(--grey-200);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.taskCard:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-1px);
+}
+
+.taskCard:active {
+  transform: translateY(0);
+}
+
+.taskTitle {
+  font-weight: 500;
+  margin-bottom: var(--spacing-sm);
+  color: var(--grey-900);
+  line-height: 1.4;
+}
+
+.taskMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--spacing-sm);
+}
+
+.taskPriority {
+  padding: 2px var(--spacing-sm);
+  border-radius: 12px;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.priorityHigh {
+  background: #ffebee;
+  color: var(--error);
+}
+
+.priorityMedium {
+  background: #fff3e0;
+  color: var(--warning);
+}
+
+.priorityLow {
+  background: #e8f5e8;
+  color: var(--success);
+}
+
+.taskAssignee {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  font-size: var(--font-size-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 500;
+}
+
+/* 拖拉狀態 */
+.taskCard.dragging {
+  opacity: 0.5;
+  transform: rotate(5deg);
+}
+
+.taskCard.dragOver {
+  border-color: var(--primary);
+  background: var(--grey-50);
+}
