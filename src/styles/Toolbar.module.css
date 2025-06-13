@@ -1,0 +1,40 @@
+.toolbar {
+  height: var(--toolbar-height);
+  background: white;
+  border-bottom: 1px solid var(--grey-200);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--spacing-lg);
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+}
+
+.title {
+  font-size: var(--font-size-xl);
+  color: var(--grey-900);
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+.userAvatar {
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  border-radius: 50%;
+  background: var(--primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.userAvatar:hover {
+  background: var(--primary);
+}
