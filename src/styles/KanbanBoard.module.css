@@ -1,0 +1,21 @@
+.kanbanBoard {
+  flex: 1;
+  padding: var(--spacing-lg);
+  display: flex;
+  gap: var(--spacing-lg);
+  overflow-x: auto;
+  background: var(--grey-100);
+}
+
+.kanbanBoard::-webkit-scrollbar {
+  height: 8px;
+}
+
+.kanbanBoard::-webkit-scrollbar-track {
+  background: var(--grey-100);
+}
+
+.kanbanBoard::-webkit-scrollbar-thumb {
+  background: var(--grey-300);
+  border-radius: 4px;
+}
