@@ -3,6 +3,7 @@ import sidebarStyles from "../styles/Sidebar.module.css";
 export default function Sidebar() {
   return (
     <>
+<<<<<<< HEAD
       <div className={sidebarStyles.logo}>專案管理</div>
       <div className={`${sidebarStyles.navItem} ${sidebarStyles.active}`}>
         📊 儀表板
