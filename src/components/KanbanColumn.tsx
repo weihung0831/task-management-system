@@ -1,13 +1,7 @@
 import kanbanColumnStyles from "../styles/KanbanColumn.module.css";
 import TaskCard from "./TaskCard";
 import { useDroppable } from "@dnd-kit/core";
-
-interface Task {
-  id: string;
-  title: string;
-  priority: "高優先" | "中優先" | "低優先";
-  assignee: string;
-}
+import type { Task } from "../App";
 
 interface KanbanColumnProps {
   id: string;

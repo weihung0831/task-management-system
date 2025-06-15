@@ -11,11 +11,14 @@ import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import { useState } from "react";
 import TaskCard from "./components/TaskCard";
 
-type Task = {
+export type Task = {
   id: string;
   title: string;
-  priority: "高優先" | "中優先" | "低優先";
+  description?: string;
+  priority: "high" | "medium" | "low";
   assignee: string;
+  dueDate?: string;
+  status: "todo" | "in-progress" | "completed";
 };
 
 type TasksState = {
@@ -31,21 +34,70 @@ export default function App() {
   // 狀態管理：將tasks按列分組
   const [tasks, setTasks] = useState<TasksState>({
     todo: [
-      { id: "1", title: "設計用戶登入介面", priority: "高優先", assignee: "A" },
-      { id: "2", title: "建立資料庫Schema", priority: "中優先", assignee: "B" },
-      { id: "3", title: "撰寫API文檔", priority: "低優先", assignee: "C" },
+      {
+        id: "1",
+        title: "設計用戶登入介面",
+        priority: "high",
+        assignee: "A",
+        status: "todo",
+      },
+      {
+        id: "2",
+        title: "建立資料庫Schema",
+        priority: "medium",
+        assignee: "B",
+        status: "todo",
+      },
+      {
+        id: "3",
+        title: "撰寫API文檔",
+        priority: "low",
+        assignee: "C",
+        status: "todo",
+      },
     ],
     "in-progress": [
-      { id: "4", title: "開發用戶認證功能", priority: "高優先", assignee: "D" },
-      { id: "5", title: "實作拖拉排序", priority: "中優先", assignee: "E" },
+      {
+        id: "4",
+        title: "開發用戶認證功能",
+        priority: "high",
+        assignee: "D",
+        status: "in-progress",
+      },
+      {
+        id: "5",
+        title: "實作拖拉排序",
+        priority: "medium",
+        assignee: "E",
+        status: "in-progress",
+      },
     ],
     completed: [
-      { id: "6", title: "專案初始設定", priority: "低優先", assignee: "F" },
+      {
+        id: "6",
+        title: "專案初始設定",
+        priority: "low",
+        assignee: "F",
+        status: "completed",
+      },
     ],
   });
 
   // 取得所有tasks
   const allTasks = [...tasks.todo, ...tasks["in-progress"], ...tasks.completed];
+
+  // 新增任務函數
+  const addTask = (newTask: Omit<Task, "id">) => {
+    const taskWithId = {
+      ...newTask,
+      id: Date.now().toString(),
+    };
+
+    setTasks((prev) => ({
+      ...prev,
+      [newTask.status]: [...prev[newTask.status], taskWithId],
+    }));
+  };
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
@@ -100,7 +152,7 @@ export default function App() {
         </div>
         <div className="main-content">
           <div className={toolbarStyles.toolbar}>
-            <Toolbar />
+            <Toolbar onAddTask={addTask} />
           </div>
           <div className={kanbanBoardStyles.kanbanBoard}>
             <KanbanColumn id="todo" title="待辦事項" tasks={tasks.todo} />
