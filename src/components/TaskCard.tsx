@@ -1,33 +1,39 @@
 import taskCardStyles from "../styles/TaskCard.module.css";
 import { useDraggable } from "@dnd-kit/core";
-
-interface Task {
-  id: string;
-  title: string;
-  priority: string;
-  assignee: string;
-}
+import type { Task } from "../App";
 
 interface TaskCardProps {
   task: Task;
 }
 
 export default function TaskCard({ task }: TaskCardProps) {
-  const { attributes, listeners, setNodeRef, isDragging } =
-    useDraggable({
-      id: task.id,
-    });
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: task.id,
+  });
 
   const getPriorityClass = (priority: string) => {
     switch (priority) {
-      case "高優先":
+      case "high":
         return taskCardStyles.priorityHigh;
-      case "中優先":
+      case "medium":
         return taskCardStyles.priorityMedium;
-      case "低優先":
+      case "low":
         return taskCardStyles.priorityLow;
       default:
         return taskCardStyles.priorityMedium;
+    }
+  };
+
+  const getPriorityText = (priority: string) => {
+    switch (priority) {
+      case "high":
+        return "🔴 高優先";
+      case "medium":
+        return "🟡 中優先";
+      case "low":
+        return "🟢 低優先";
+      default:
+        return "🟡 中優先";
     }
   };
 
@@ -50,7 +56,7 @@ export default function TaskCard({ task }: TaskCardProps) {
             task.priority
           )}`}
         >
-          {task.priority}
+          {getPriorityText(task.priority)}
         </span>
         <div className={taskCardStyles.taskAssignee}>{task.assignee}</div>
       </div>
