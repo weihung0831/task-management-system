@@ -1,53 +1,72 @@
 # CLAUDE.md
 
+這個檔案為 Claude Code (claude.ai/code) 在此儲存庫中工作時提供指導。
+
 ## 專案概述
 - React + TypeScript + Vite 看板任務管理應用程式
 - 使用 DND Kit 實現拖拉排序的任務管理系統
 - 採用 CSS Modules 搭配設計系統變數進行元件樣式管理
 
-## Code Review 行為指導
+## 技術堆疊
+- React 19.1.0
+- TypeScript 5.8.3
+- Vite 6.3.5
+- Material-UI 7.1.1
+- DND Kit 6.3.1 拖拉排序功能
+- Redux Toolkit 2.8.2
+- React Router 7.6.2
+- Socket.io Client 4.8.1
 
-### 自動 Code Review
-- 對每個 Pull Request 自動執行程式碼審查
-- **必須使用 inline comments 在 Files changed 頁面的特定程式碼行留言**
-- **不要在 Conversation 中留下整體評論**
-- 每個具體問題都要直接標註在相關的程式碼行
-- 使用 GitHub PR review comments 格式進行逐行審查
+## 開發指令
+```bash
+npm run dev      # 啟動開發伺服器
+npm run build    # 產品構建
+npm run lint     # 執行 ESLint
+npm run preview  # 預覽產品構建
+```
 
-### 審查重點
-- TypeScript 型別安全性
-- React 最佳實踐和 hooks 使用
-- 效能優化機會
-- 程式碼可讀性和維護性
-- 潛在的 bug 和邏輯問題
+## 架構說明
 
-### Review 格式要求
-- 使用 GitHub 的 Pull Request review 功能
-- 針對每個具體問題在對應程式碼行留下 inline comment
-- 不要在 Conversation tab 中留下整體性的評論
-- 每個 comment 都要指向特定的程式碼位置
+### 狀態管理
+- 主要應用程式狀態在 `App.tsx` 中管理，負責三個欄位的任務：`todo`、`in-progress`、`completed`
+- 任務資料結構：`{ id, title, priority, assignee }`
+- 拖拉排序透過 DND Kit 的 `DndContext` 搭配 `handleDragStart` 和 `handleDragEnd` 處理
 
-## Commit 訊息規範
-- 使用 Conventional Commits 格式
-- 前綴規則：
-  - `feat:` 新功能
-  - `fix:` 錯誤修復
-  - `docs:` 文檔更新
-  - `style:` 程式碼格式化
-  - `refactor:` 重構代碼
-  - `test:` 測試相關
-  - `chore:` 建置流程或輔助工具變更
+### 樣式系統
+- 採用 CSS Modules 模式進行元件特定樣式 (`.module.css`)
+- 全域設計系統變數位於 `src/styles/variables.css`
+- 使用 CSS 自訂屬性定義顏色、間距、字型、陰影
+- 全域佈局和重置樣式位於 `src/styles/globals.css`
 
-## Pull Request 規範
-- 所有 PR 必須包含：
-  - 清楚的描述和變更說明
-  - 相關的 issue 連結（如適用）
-  - 通過所有 CI 檢查
-  - 至少一個程式碼審查通過
+### 元件結構
+- `App.tsx`：主要佈局搭配 DndContext，管理任務狀態和拖拉操作
+- `KanbanColumn.tsx`：使用 `useDroppable` 的可放置欄位容器
+- `TaskCard.tsx`：使用 `useDraggable` 的可拖拉任務項目
+- `Toolbar.tsx`：頂部導航/操作列
+- `Sidebar.tsx`：左側導航面板
+- `AddTaskModal.tsx`：新增任務的模態視窗，包含表單輸入
 
-## AI 協作指導
-- 優先考慮最小化、專注的變更
-- 維持現有程式碼結構和設計模式
-- 新功能需包含適當的錯誤處理
-- 確保向後兼容性
-- 程式碼變更需要清楚的解釋和理由
+### 佈局架構
+- 基於 Flexbox 的佈局：側邊欄 (240px) + 主內容區域
+- 主內容：工具列 (64px 高度) + 看板區域
+- 使用 CSS 自訂屬性實現響應式設計
+
+### 檔案組織
+- `/src/components/` - React 元件
+- `/src/styles/` - CSS 模組和全域樣式
+- 元件樣式命名為 `元件名稱.module.css`
+- 全域樣式：`variables.css`、`globals.css`
+
+## 目前功能
+- 三欄位看板 (待辦事項、進行中、已完成)
+- 任務在欄位間的拖拉移動
+- 任務優先級系統 (高優先、中優先、低優先)
+- 任務指派給團隊成員
+- 新增任務模態視窗與表單驗證
+
+## 開發注意事項
+- 使用中文進行 UI 文字和註解
+- ESLint 配置包含 React hooks 和 TypeScript 規則
+- 使用 Vite 進行快速開發和構建
+- CSS 自訂屬性實現一致的主題設計
+- 模態元件支援點擊遮罩和 ESC 鍵關閉功能

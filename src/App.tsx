@@ -10,7 +10,15 @@ import { DndContext, DragOverlay } from "@dnd-kit/core";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import { useMemo, useState } from "react";
 import TaskCard from "./components/TaskCard";
-import type { Task } from "./types";
+export type Task = {
+  id: string;
+  title: string;
+  description?: string;
+  priority: "high" | "medium" | "low";
+  assignee: string;
+  dueDate?: string;
+  status: "todo" | "in-progress" | "completed";
+};
 
 type TasksState = {
   [key: string]: Task[];
@@ -28,16 +36,52 @@ export default function App() {
   // 狀態管理：將tasks按列分組
   const [tasks, setTasks] = useState<TasksState>({
     todo: [
-      { id: "1", title: "設計用戶登入介面", priority: "高優先", assignee: "A" },
-      { id: "2", title: "建立資料庫Schema", priority: "中優先", assignee: "B" },
-      { id: "3", title: "撰寫API文檔", priority: "低優先", assignee: "C" },
+      {
+        id: "1",
+        title: "設計用戶登入介面",
+        priority: "high",
+        assignee: "A",
+        status: "todo",
+      },
+      {
+        id: "2",
+        title: "建立資料庫Schema",
+        priority: "medium",
+        assignee: "B",
+        status: "todo",
+      },
+      {
+        id: "3",
+        title: "撰寫API文檔",
+        priority: "low",
+        assignee: "C",
+        status: "todo",
+      },
     ],
     "in-progress": [
-      { id: "4", title: "開發用戶認證功能", priority: "高優先", assignee: "D" },
-      { id: "5", title: "實作拖拉排序", priority: "中優先", assignee: "E" },
+      {
+        id: "4",
+        title: "開發用戶認證功能",
+        priority: "high",
+        assignee: "D",
+        status: "in-progress",
+      },
+      {
+        id: "5",
+        title: "實作拖拉排序",
+        priority: "medium",
+        assignee: "E",
+        status: "in-progress",
+      },
     ],
     completed: [
-      { id: "6", title: "專案初始設定", priority: "低優先", assignee: "F" },
+      {
+        id: "6",
+        title: "專案初始設定",
+        priority: "low",
+        assignee: "F",
+        status: "completed",
+      },
     ],
   });
 
@@ -45,6 +89,19 @@ export default function App() {
   const allTasks = useMemo(() => {
     return [...tasks.todo, ...tasks["in-progress"], ...tasks.completed];
   }, [tasks]);
+
+  // 新增任務函數
+  const addTask = (newTask: Omit<Task, "id">) => {
+    const taskWithId = {
+      ...newTask,
+      id: crypto.randomUUID(), // 使用 crypto.randomUUID() 生成唯一ID
+    };
+
+    setTasks((prev) => ({
+      ...prev,
+      [newTask.status]: [...prev[newTask.status], taskWithId],
+    }));
+  };
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
@@ -124,33 +181,6 @@ export default function App() {
     console.log(`導航到: ${itemId}`);
   };
 
-  // 處理工具列動作
-  const handleAddTask = () => {
-    console.log("新增任務");
-    // TODO: 開啟新增任務modal
-  };
-
-  const handleUserClick = () => {
-    console.log("用戶選單");
-    // TODO: 開啟用戶選單
-  };
-
-  // 工具列動作配置
-  const toolbarActions = useMemo(() => [
-    {
-      id: "add-task",
-      label: "新增任務", 
-      variant: "primary" as const,
-      icon: "+",
-      onClick: handleAddTask
-    }
-  ], []);
-
-  const currentUser = useMemo(() => ({
-    name: "開發者",
-    initials: "開"
-  }), []);
-
   return (
     <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="app-layout">
@@ -162,12 +192,7 @@ export default function App() {
         </div>
         <div className="main-content">
           <div className={toolbarStyles.toolbar}>
-            <Toolbar 
-              title="專案看板"
-              actions={toolbarActions}
-              user={currentUser}
-              onUserClick={handleUserClick}
-            />
+            <Toolbar onAddTask={addTask} />
           </div>
           
           {/* 錯誤訊息 */}
