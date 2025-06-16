@@ -8,15 +8,9 @@ import Toolbar from "./components/Toolbar";
 import Sidebar from "./components/Sidebar";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import TaskCard from "./components/TaskCard";
-
-type Task = {
-  id: string;
-  title: string;
-  priority: "高優先" | "中優先" | "低優先";
-  assignee: string;
-};
+import type { Task } from "./types";
 
 type TasksState = {
   [key: string]: Task[];
@@ -27,6 +21,7 @@ type TasksState = {
 
 export default function App() {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
+  const [activeNavItem, setActiveNavItem] = useState("kanban");
 
   // 狀態管理：將tasks按列分組
   const [tasks, setTasks] = useState<TasksState>({
@@ -44,8 +39,10 @@ export default function App() {
     ],
   });
 
-  // 取得所有tasks
-  const allTasks = [...tasks.todo, ...tasks["in-progress"], ...tasks.completed];
+  // 將所有任務合併到一個陣列中，方便拖放操作
+  const allTasks = useMemo(() => {
+    return [...tasks.todo, ...tasks["in-progress"], ...tasks.completed];
+  }, [tasks]);
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
@@ -55,14 +52,14 @@ export default function App() {
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    setActiveTask(null);
 
     if (!over) {
+      setActiveTask(null);
       return;
     }
 
-    const taskId = active.id as string;
-    const newColumnId = over.id as string;
+    const taskId = String(active.id);
+    const newColumnId = String(over.id);
 
     // 找到task原本在哪一列
     let sourceColumn = "";
@@ -75,6 +72,7 @@ export default function App() {
 
     // 如果移動到同一列，不做任何事
     if (sourceColumn === newColumnId) {
+      setActiveTask(null);
       return;
     }
 
@@ -90,17 +88,61 @@ export default function App() {
         [newColumnId]: [...prev[newColumnId], task],
       };
     });
+
+    // 重置拖拉狀態（放在最後）
+    setActiveTask(null);
   };
+
+  // 處理導航項目點擊
+  const handleNavItemClick = (itemId: string) => {
+    setActiveNavItem(itemId);
+    console.log(`導航到: ${itemId}`);
+  };
+
+  // 處理工具列動作
+  const handleAddTask = () => {
+    console.log("新增任務");
+    // TODO: 開啟新增任務modal
+  };
+
+  const handleUserClick = () => {
+    console.log("用戶選單");
+    // TODO: 開啟用戶選單
+  };
+
+  // 工具列動作配置
+  const toolbarActions = useMemo(() => [
+    {
+      id: "add-task",
+      label: "新增任務", 
+      variant: "primary" as const,
+      icon: "+",
+      onClick: handleAddTask
+    }
+  ], []);
+
+  const currentUser = useMemo(() => ({
+    name: "開發者",
+    initials: "開"
+  }), []);
 
   return (
     <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="app-layout">
         <div className={sidebarStyles.sidebar}>
-          <Sidebar />
+          <Sidebar 
+            activeItemId={activeNavItem}
+            onItemClick={handleNavItemClick}
+          />
         </div>
         <div className="main-content">
           <div className={toolbarStyles.toolbar}>
-            <Toolbar />
+            <Toolbar 
+              title="專案看板"
+              actions={toolbarActions}
+              user={currentUser}
+              onUserClick={handleUserClick}
+            />
           </div>
           <div className={kanbanBoardStyles.kanbanBoard}>
             <KanbanColumn id="todo" title="待辦事項" tasks={tasks.todo} />

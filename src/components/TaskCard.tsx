@@ -1,16 +1,24 @@
 import taskCardStyles from "../styles/TaskCard.module.css";
 import { useDraggable } from "@dnd-kit/core";
-
-interface Task {
-  id: string;
-  title: string;
-  priority: string;
-  assignee: string;
-}
+import type { Task } from "../types";
 
 interface TaskCardProps {
   task: Task;
 }
+
+// 優先級常數
+const PRIORITY = {
+  HIGH: "高優先",
+  MEDIUM: "中優先", 
+  LOW: "低優先"
+} as const;
+
+// 優先級樣式映射
+const PRIORITY_CLASS_MAP = {
+  [PRIORITY.HIGH]: taskCardStyles.priorityHigh,
+  [PRIORITY.MEDIUM]: taskCardStyles.priorityMedium,
+  [PRIORITY.LOW]: taskCardStyles.priorityLow,
+} as const;
 
 export default function TaskCard({ task }: TaskCardProps) {
   const { attributes, listeners, setNodeRef, isDragging } =
@@ -19,16 +27,7 @@ export default function TaskCard({ task }: TaskCardProps) {
     });
 
   const getPriorityClass = (priority: string) => {
-    switch (priority) {
-      case "高優先":
-        return taskCardStyles.priorityHigh;
-      case "中優先":
-        return taskCardStyles.priorityMedium;
-      case "低優先":
-        return taskCardStyles.priorityLow;
-      default:
-        return taskCardStyles.priorityMedium;
-    }
+    return PRIORITY_CLASS_MAP[priority as keyof typeof PRIORITY_CLASS_MAP] || taskCardStyles.priorityMedium;
   };
 
   const style = {

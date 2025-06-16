@@ -33,6 +33,8 @@
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  border: none;
+  outline: none;
 }
 
 .userAvatar:hover {
