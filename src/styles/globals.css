@@ -68,3 +68,9 @@ body {
   z-index: 999999 !important;
   position: relative !important;
 }
+
+/* 載入動畫 */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

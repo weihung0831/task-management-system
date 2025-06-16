@@ -4,6 +4,7 @@ import type { Task } from "../types";
 
 interface TaskCardProps {
   task: Task;
+  columnId?: string;
 }
 
 // 優先級常數
@@ -20,10 +21,11 @@ const PRIORITY_CLASS_MAP = {
   [PRIORITY.LOW]: taskCardStyles.priorityLow,
 } as const;
 
-export default function TaskCard({ task }: TaskCardProps) {
+export default function TaskCard({ task, columnId }: TaskCardProps) {
   const { attributes, listeners, setNodeRef, isDragging } =
     useDraggable({
       id: task.id,
+      data: { columnId } // 加入 columnId 資訊
     });
 
   const getPriorityClass = (priority: string) => {
@@ -31,7 +33,10 @@ export default function TaskCard({ task }: TaskCardProps) {
   };
 
   const style = {
-    opacity: isDragging ? 0 : 1,
+    opacity: isDragging ? 0.5 : 1,
+    transform: isDragging ? 'scale(0.95)' : 'scale(1)',
+    transition: 'all 0.2s ease',
+    cursor: isDragging ? 'grabbing' : 'grab',
   };
 
   return (
