@@ -36,7 +36,7 @@ export default function KanbanColumn({ id, title, tasks }: KanbanColumnProps) {
 
       <div className={kanbanColumnStyles.taskList}>
         {tasks.map((task) => (
-          <TaskCard key={task.id} task={task} />
+          <TaskCard key={task.id} task={task} columnId={id} />
         ))}
       </div>
     </div>

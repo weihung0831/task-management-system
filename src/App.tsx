@@ -22,6 +22,8 @@ type TasksState = {
 export default function App() {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [activeNavItem, setActiveNavItem] = useState("kanban");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // 狀態管理：將tasks按列分組
   const [tasks, setTasks] = useState<TasksState>({
@@ -50,7 +52,7 @@ export default function App() {
     setActiveTask(task || null);
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (!over) {
@@ -61,14 +63,8 @@ export default function App() {
     const taskId = String(active.id);
     const newColumnId = String(over.id);
 
-    // 找到task原本在哪一列
-    let sourceColumn = "";
-    for (const [columnId, columnTasks] of Object.entries(tasks)) {
-      if (columnTasks.find((task) => task.id === taskId)) {
-        sourceColumn = columnId;
-        break;
-      }
-    }
+    // 從 draggable data 中取得來源欄位
+    const sourceColumn = active.data.current?.columnId as string;
 
     // 如果移動到同一列，不做任何事
     if (sourceColumn === newColumnId) {
@@ -76,21 +72,50 @@ export default function App() {
       return;
     }
 
-    // 移動task到新列
-    setTasks((prev) => {
-      const task = prev[sourceColumn].find((t) => t.id === taskId);
+    // 設置載入狀態
+    setIsLoading(true);
+    setError(null);
 
-      if (!task) return prev;
+    try {
+      // 模擬 API 呼叫延遲
+      await new Promise(resolve => setTimeout(resolve, 300));
 
-      return {
-        ...prev,
-        [sourceColumn]: prev[sourceColumn].filter((t) => t.id !== taskId),
-        [newColumnId]: [...prev[newColumnId], task],
-      };
-    });
+      // 移動task到新列
+      setTasks((prev) => {
+        // 檢查來源欄位是否存在
+        if (!sourceColumn || !prev[sourceColumn]) {
+          throw new Error(`來源欄位不存在: ${sourceColumn}`);
+        }
 
-    // 重置拖拉狀態（放在最後）
-    setActiveTask(null);
+        // 檢查目標欄位是否存在
+        if (!newColumnId || !prev[newColumnId]) {
+          throw new Error(`目標欄位不存在: ${newColumnId}`);
+        }
+
+        // 檢查任務是否存在
+        const task = prev[sourceColumn].find((t) => t.id === taskId);
+        if (!task) {
+          throw new Error(`任務不存在: ${taskId} 在欄位 ${sourceColumn}`);
+        }
+
+        return {
+          ...prev,
+          [sourceColumn]: prev[sourceColumn].filter((t) => t.id !== taskId),
+          [newColumnId]: [...prev[newColumnId], task],
+        };
+      });
+
+      // 未來這裡可以加入 API 呼叫
+      // await updateTaskStatus(taskId, newColumnId);
+
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : '移動任務時發生錯誤';
+      setError(errorMessage);
+      console.error('拖拉排序錯誤:', err);
+    } finally {
+      setIsLoading(false);
+      setActiveTask(null);
+    }
   };
 
   // 處理導航項目點擊
@@ -144,7 +169,41 @@ export default function App() {
               onUserClick={handleUserClick}
             />
           </div>
-          <div className={kanbanBoardStyles.kanbanBoard}>
+          
+          {/* 錯誤訊息 */}
+          {error && (
+            <div style={{
+              padding: '12px',
+              margin: '16px',
+              backgroundColor: '#fee',
+              border: '1px solid #fcc',
+              borderRadius: '8px',
+              color: '#c33',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <span>{error}</span>
+              <button 
+                onClick={() => setError(null)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#c33',
+                  cursor: 'pointer',
+                  fontSize: '18px'
+                }}
+              >
+                ×
+              </button>
+            </div>
+          )}
+
+          <div className={kanbanBoardStyles.kanbanBoard} style={{
+            opacity: isLoading ? 0.7 : 1,
+            pointerEvents: isLoading ? 'none' : 'auto',
+            transition: 'opacity 0.3s ease'
+          }}>
             <KanbanColumn id="todo" title="待辦事項" tasks={tasks.todo} />
             <KanbanColumn
               id="in-progress"
@@ -157,11 +216,56 @@ export default function App() {
               tasks={tasks.completed}
             />
           </div>
+
+          {/* 載入指示器 */}
+          {isLoading && (
+            <div style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              color: 'white',
+              padding: '16px 24px',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              zIndex: 1000
+            }}>
+              <div style={{
+                width: '20px',
+                height: '20px',
+                border: '2px solid #fff',
+                borderTop: '2px solid transparent',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite'
+              }}></div>
+              正在移動任務...
+            </div>
+          )}
         </div>
       </div>
 
-      <DragOverlay>
-        {activeTask ? <TaskCard task={activeTask} /> : null}
+      <DragOverlay 
+        adjustScale={false}
+        dropAnimation={{
+          duration: 300,
+          easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
+        }}
+      >
+        {activeTask ? (
+          <div 
+            style={{
+              transform: 'rotate(3deg) scale(1.05)',
+              boxShadow: '0 15px 30px rgba(0, 0, 0, 0.25)',
+              cursor: 'grabbing',
+              transition: 'transform 0.2s ease',
+            }}
+          >
+            <TaskCard task={activeTask} />
+          </div>
+        ) : null}
       </DragOverlay>
     </DndContext>
   );
