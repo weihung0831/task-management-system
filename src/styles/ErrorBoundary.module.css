@@ -1,0 +1,175 @@
+/* 錯誤邊界樣式 */
+.errorBoundary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 20px;
+}
+
+.errorContainer {
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.errorIcon {
+  font-size: 64px;
+  margin-bottom: 24px;
+  opacity: 0.8;
+}
+
+.errorTitle {
+  font-size: 28px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.errorMessage {
+  font-size: 16px;
+  color: #6b7280;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+/* 錯誤詳情 */
+.errorDetails {
+  margin: 24px 0;
+  text-align: left;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.errorSummary {
+  padding: 16px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  background: #f3f4f6;
+  border-radius: 8px 8px 0 0;
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.2s ease;
+}
+
+.errorSummary:hover {
+  background: #e5e7eb;
+}
+
+.errorContent {
+  padding: 16px;
+}
+
+.errorContent h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin: 16px 0 8px 0;
+}
+
+.errorContent h4:first-child {
+  margin-top: 0;
+}
+
+.errorText {
+  background: #111827;
+  color: #f9fafb;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* 操作按鈕 */
+.errorActions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btnPrimary,
+.btnSecondary {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  min-width: 120px;
+}
+
+.btnPrimary {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.btnPrimary:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.btnSecondary {
+  background: transparent;
+  color: #6b7280;
+  border-color: #d1d5db;
+}
+
+.btnSecondary:hover {
+  background: #f3f4f6;
+  color: #374151;
+  border-color: #9ca3af;
+}
+
+.btnPrimary:active,
+.btnSecondary:active {
+  transform: translateY(0);
+}
+
+/* 響應式設計 */
+@media (max-width: 640px) {
+  .errorContainer {
+    padding: 24px;
+    margin: 16px;
+  }
+  
+  .errorIcon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+  
+  .errorTitle {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+  
+  .errorMessage {
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+  
+  .errorActions {
+    flex-direction: column;
+  }
+  
+  .btnPrimary,
+  .btnSecondary {
+    width: 100%;
+  }
+}

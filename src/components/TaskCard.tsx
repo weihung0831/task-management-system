@@ -1,3 +1,4 @@
+import React from "react";
 import taskCardStyles from "../styles/TaskCard.module.css";
 import { useDraggable } from "@dnd-kit/core";
 import type { Task } from "../App";
@@ -5,9 +6,10 @@ import type { Task } from "../App";
 interface TaskCardProps {
   task: Task;
   columnId?: string;
+  onTaskClick?: (taskId: string) => void;
 }
 
-export default function TaskCard({ task, columnId }: TaskCardProps) {
+const TaskCard = React.memo(function TaskCard({ task, columnId, onTaskClick }: TaskCardProps) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: task.id,
     data: { columnId }
@@ -39,6 +41,12 @@ export default function TaskCard({ task, columnId }: TaskCardProps) {
     }
   };
 
+  const handleDetailClick = (e: React.MouseEvent) => {
+    // 阻止事件冒泡，避免觸發拖拽
+    e.stopPropagation();
+    onTaskClick?.(task.id);
+  };
+
   const style = {
     opacity: isDragging ? 0.5 : 1,
     transform: isDragging ? 'scale(0.95)' : 'scale(1)',
@@ -51,10 +59,19 @@ export default function TaskCard({ task, columnId }: TaskCardProps) {
       ref={setNodeRef}
       className={taskCardStyles.taskCard}
       style={style}
+      onClick={handleDetailClick}
       {...attributes}
-      {...listeners}
     >
-      <div className={taskCardStyles.taskTitle}>{task.title}</div>
+      <div className={taskCardStyles.taskHeader}>
+        <div 
+          className={taskCardStyles.dragHandle}
+          {...listeners}
+          title="拖動排序"
+        >
+          ⋮⋮
+        </div>
+        <div className={taskCardStyles.taskTitle}>{task.title}</div>
+      </div>
       <div className={taskCardStyles.taskMeta}>
         <span
           className={`${taskCardStyles.taskPriority} ${getPriorityClass(
@@ -67,4 +84,8 @@ export default function TaskCard({ task, columnId }: TaskCardProps) {
       </div>
     </div>
   );
-}
+});
+
+TaskCard.displayName = 'TaskCard';
+
+export default TaskCard;

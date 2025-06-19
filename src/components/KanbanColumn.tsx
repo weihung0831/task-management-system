@@ -1,3 +1,4 @@
+import React from "react";
 import kanbanColumnStyles from "../styles/KanbanColumn.module.css";
 import TaskCard from "./TaskCard";
 import { useDroppable } from "@dnd-kit/core";
@@ -7,9 +8,10 @@ interface KanbanColumnProps {
   id: string;
   title: string;
   tasks: Task[];
+  onTaskClick?: (taskId: string) => void;
 }
 
-export default function KanbanColumn({ id, title, tasks }: KanbanColumnProps) {
+const KanbanColumn = React.memo(function KanbanColumn({ id, title, tasks, onTaskClick }: KanbanColumnProps) {
   const { isOver, setNodeRef } = useDroppable({
     id: id,
   });
@@ -30,9 +32,18 @@ export default function KanbanColumn({ id, title, tasks }: KanbanColumnProps) {
 
       <div className={kanbanColumnStyles.taskList}>
         {tasks.map((task) => (
-          <TaskCard key={task.id} task={task} columnId={id} />
+          <TaskCard 
+            key={task.id} 
+            task={task} 
+            columnId={id} 
+            onTaskClick={onTaskClick}
+          />
         ))}
       </div>
     </div>
   );
-}
+});
+
+KanbanColumn.displayName = 'KanbanColumn';
+
+export default KanbanColumn;

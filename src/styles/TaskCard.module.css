@@ -1,12 +1,14 @@
 .taskCard {
   background: white;
-  border: 1px solid var(--grey-200);
+  border: none !important;
+  outline: none !important;
   border-radius: var(--border-radius-md);
   padding: var(--spacing-sm);
   margin-bottom: var(--spacing-sm);
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .taskCard:hover {
@@ -18,12 +20,49 @@
   transform: translateY(0);
 }
 
+.taskCard:focus {
+  border: none !important;
+  outline: none !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.taskHeader {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-sm);
+  gap: 8px;
+}
+
+.dragHandle {
+  cursor: grab;
+  color: var(--grey-400);
+  font-size: 12px;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  user-select: none;
+  transform: rotate(90deg);
+  flex-shrink: 0;
+  margin-top: -2px;
+}
+
+.dragHandle:hover {
+  background-color: var(--grey-100);
+  color: var(--grey-600);
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
 .taskTitle {
   font-weight: 500;
-  margin-bottom: var(--spacing-sm);
   color: var(--grey-900);
   line-height: 1.4;
+  flex: 1;
+  min-width: 0;
 }
+
 
 .taskMeta {
   display: flex;
@@ -75,6 +114,6 @@
 }
 
 .taskCard.dragOver {
-  border-color: var(--primary);
   background: var(--grey-50);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }

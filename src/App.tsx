@@ -8,8 +8,11 @@ import Toolbar from "./components/Toolbar";
 import Sidebar from "./components/Sidebar";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import TaskCard from "./components/TaskCard";
+import TaskDetailModal from "./components/TaskDetailModal";
+import ErrorBoundary from "./components/ErrorBoundary";
+import ErrorTestComponent from "./components/ErrorTestComponent";
 export type Task = {
   id: string;
   title: string;
@@ -32,6 +35,10 @@ export default function App() {
   const [activeNavItem, setActiveNavItem] = useState("kanban");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // TaskDetailModal 狀態
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // 狀態管理：將tasks按列分組
   const [tasks, setTasks] = useState<TasksState>({
@@ -91,7 +98,7 @@ export default function App() {
   }, [tasks]);
 
   // 新增任務函數
-  const addTask = (newTask: Omit<Task, "id">) => {
+  const addTask = useCallback((newTask: Omit<Task, "id">) => {
     const taskWithId = {
       ...newTask,
       id: crypto.randomUUID(), // 使用 crypto.randomUUID() 生成唯一ID
@@ -101,7 +108,7 @@ export default function App() {
       ...prev,
       [newTask.status]: [...prev[newTask.status], taskWithId],
     }));
-  };
+  }, []);
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
@@ -176,24 +183,99 @@ export default function App() {
   };
 
   // 處理導航項目點擊
-  const handleNavItemClick = (itemId: string) => {
+  const handleNavItemClick = useCallback((itemId: string) => {
     setActiveNavItem(itemId);
     console.log(`導航到: ${itemId}`);
-  };
+  }, []);
+
+  // 處理任務卡片點擊
+  const handleTaskClick = useCallback((taskId: string) => {
+    setSelectedTaskId(taskId);
+    setIsModalOpen(true);
+  }, []);
+
+  // 根據ID獲取任務
+  const getTaskById = useCallback((taskId: string | null): Task | null => {
+    if (!taskId) return null;
+    return allTasks.find(task => task.id === taskId) || null;
+  }, [allTasks]);
+
+  // 更新任務
+  const handleTaskUpdate = useCallback((taskId: string, updates: Partial<Task>) => {
+    setTasks(prev => {
+      const newTasks = { ...prev };
+      
+      // 找到任務所在的欄位
+      for (const [columnId, columnTasks] of Object.entries(newTasks)) {
+        const taskIndex = columnTasks.findIndex(task => task.id === taskId);
+        if (taskIndex !== -1) {
+          const updatedTask = { ...columnTasks[taskIndex], ...updates };
+          
+          // 如果狀態有變更，需要移動任務到對應欄位
+          if (updates.status && updates.status !== columnTasks[taskIndex].status) {
+            // 從原欄位移除任務
+            newTasks[columnId] = columnTasks.filter(task => task.id !== taskId);
+            // 將任務添加到新狀態對應的欄位
+            newTasks[updates.status] = [...(newTasks[updates.status] || []), updatedTask];
+          } else {
+            // 在同一欄位更新
+            newTasks[columnId][taskIndex] = updatedTask;
+          }
+          break;
+        }
+      }
+      
+      return newTasks;
+    });
+  }, []);
+
+  // 刪除任務
+  const handleTaskDelete = useCallback((taskId: string) => {
+    setTasks(prev => {
+      const newTasks = { ...prev };
+      
+      // 從所有欄位中移除該任務
+      for (const [columnId, columnTasks] of Object.entries(newTasks)) {
+        newTasks[columnId] = columnTasks.filter(task => task.id !== taskId);
+      }
+      
+      return newTasks;
+    });
+  }, []);
+
+  // 關閉Modal
+  const handleModalClose = useCallback(() => {
+    setIsModalOpen(false);
+    setSelectedTaskId(null);
+  }, []);
 
   return (
-    <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="app-layout">
-        <div className={sidebarStyles.sidebar}>
-          <Sidebar 
-            activeItemId={activeNavItem}
-            onItemClick={handleNavItemClick}
-          />
-        </div>
-        <div className="main-content">
-          <div className={toolbarStyles.toolbar}>
-            <Toolbar onAddTask={addTask} />
+    <ErrorBoundary>
+      <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <div className="app-layout">
+          <div className={sidebarStyles.sidebar}>
+            <ErrorBoundary fallback={
+              <div style={{ padding: '20px', textAlign: 'center' }}>
+                <p>側邊欄載入失敗</p>
+                <button onClick={() => window.location.reload()}>重新載入</button>
+              </div>
+            }>
+              <Sidebar 
+                activeItemId={activeNavItem}
+                onItemClick={handleNavItemClick}
+              />
+            </ErrorBoundary>
           </div>
+          <div className="main-content">
+            <div className={toolbarStyles.toolbar}>
+              <ErrorBoundary fallback={
+                <div style={{ padding: '20px', textAlign: 'center' }}>
+                  <p>工具列載入失敗</p>
+                </div>
+              }>
+                <Toolbar onAddTask={addTask} />
+              </ErrorBoundary>
+            </div>
           
           {/* 錯誤訊息 */}
           {error && (
@@ -224,23 +306,56 @@ export default function App() {
             </div>
           )}
 
-          <div className={kanbanBoardStyles.kanbanBoard} style={{
-            opacity: isLoading ? 0.7 : 1,
-            pointerEvents: isLoading ? 'none' : 'auto',
-            transition: 'opacity 0.3s ease'
-          }}>
-            <KanbanColumn id="todo" title="待辦事項" tasks={tasks.todo} />
-            <KanbanColumn
-              id="in-progress"
-              title="進行中"
-              tasks={tasks["in-progress"]}
-            />
-            <KanbanColumn
-              id="completed"
-              title="已完成"
-              tasks={tasks.completed}
-            />
-          </div>
+          <ErrorBoundary fallback={
+            <div style={{ padding: '40px', textAlign: 'center' }}>
+              <h3>看板載入失敗</h3>
+              <p>無法載入任務看板，請重新整理頁面或聯繫管理員。</p>
+              <button onClick={() => window.location.reload()}>重新載入</button>
+            </div>
+          }>
+            <div className={kanbanBoardStyles.kanbanBoard} style={{
+              opacity: isLoading ? 0.7 : 1,
+              pointerEvents: isLoading ? 'none' : 'auto',
+              transition: 'opacity 0.3s ease'
+            }}>
+              <ErrorBoundary fallback={
+                <div style={{ padding: '20px', textAlign: 'center', border: '1px dashed #ccc' }}>
+                  <p>此欄位載入失敗</p>
+                </div>
+              }>
+                <KanbanColumn 
+                  id="todo" 
+                  title="待辦事項" 
+                  tasks={tasks.todo} 
+                  onTaskClick={handleTaskClick}
+                />
+              </ErrorBoundary>
+              <ErrorBoundary fallback={
+                <div style={{ padding: '20px', textAlign: 'center', border: '1px dashed #ccc' }}>
+                  <p>此欄位載入失敗</p>
+                </div>
+              }>
+                <KanbanColumn
+                  id="in-progress"
+                  title="進行中"
+                  tasks={tasks["in-progress"]}
+                  onTaskClick={handleTaskClick}
+                />
+              </ErrorBoundary>
+              <ErrorBoundary fallback={
+                <div style={{ padding: '20px', textAlign: 'center', border: '1px dashed #ccc' }}>
+                  <p>此欄位載入失敗</p>
+                </div>
+              }>
+                <KanbanColumn
+                  id="completed"
+                  title="已完成"
+                  tasks={tasks.completed}
+                  onTaskClick={handleTaskClick}
+                />
+              </ErrorBoundary>
+            </div>
+          </ErrorBoundary>
 
           {/* 載入指示器 */}
           {isLoading && (
@@ -292,6 +407,35 @@ export default function App() {
           </div>
         ) : null}
       </DragOverlay>
-    </DndContext>
+
+        {/* TaskDetailModal */}
+        <ErrorBoundary fallback={
+          <div style={{ 
+            position: 'fixed', 
+            top: '50%', 
+            left: '50%', 
+            transform: 'translate(-50%, -50%)',
+            background: 'white',
+            padding: '20px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+          }}>
+            <h3>模態視窗載入失敗</h3>
+            <button onClick={handleModalClose}>關閉</button>
+          </div>
+        }>
+          <TaskDetailModal
+            isOpen={isModalOpen}
+            onClose={handleModalClose}
+            task={getTaskById(selectedTaskId)}
+            onTaskUpdate={handleTaskUpdate}
+            onTaskDelete={handleTaskDelete}
+          />
+        </ErrorBoundary>
+        
+        {/* 開發環境下的錯誤測試組件 */}
+        <ErrorTestComponent />
+      </DndContext>
+    </ErrorBoundary>
   );
 }
